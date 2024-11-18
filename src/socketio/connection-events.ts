@@ -4,7 +4,7 @@ import pokemonManager from '../models/PokemonManager'
 
 export default function handleConnectionEvents(socket: Socket) {
   socket.on('disconnect', async () => {
-    pokemonManager.unloadPlayerPokemons(socket.data.user, socket.id)
+    pokemonManager.unloadPlayerPokemons(socket.id)
     console.log('Usuário desconectado:', socket.id)
   })
 }
