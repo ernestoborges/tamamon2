@@ -37,8 +37,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [connected, setConnected] = useState<boolean>(false)
   const [socket, setSocket] = useState<Socket | null>(null)
 
-  useMemo(() => {
-    if (session && !socket) {
+  useEffect(() => {
+    if (session) {
       const newSocket = io('http://localhost:3000', {
         query: { userId: session?.user.id }
       })

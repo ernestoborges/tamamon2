@@ -33,8 +33,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session)
+      (_event, _session) => {
+        if (session?.user?.id == _session?.user?.id) return
+
+        if (
+          session &&
+          (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED')
+        ) {
+          setSession(session)
+        }
+
+        if (_event === 'SIGNED_OUT') {
+          setSession(null)
+        }
       }
     )
 
