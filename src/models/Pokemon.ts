@@ -13,6 +13,7 @@ export class Pokemon {
     private nickname: string,
     private level: number,
     private hunger: number,
+    private happiness: number,
     private ability: string,
     public lastHungryUpdate: string,
     //
@@ -44,8 +45,28 @@ export class Pokemon {
     this.lastHungryUpdate = new Date().toISOString()
   }
 
+  decrementHappiness(n?: number) {
+    if (n && n > 0) {
+      this.happiness = Math.max(0, this.happiness - n)
+    } else if (this.happiness > 0) {
+      this.happiness -= 1
+    }
+  }
+
+  incrementHappiness(n?: number) {
+    if (n && n > 0) {
+      this.happiness += Math.min(1000, n)
+    } else {
+      this.happiness += 1
+    }
+  }
+
   getHunger(): number {
     return this.hunger
+  }
+
+  getHappiness(): number {
+    return this.happiness
   }
 
   async syncWithDatabase() {
@@ -74,7 +95,7 @@ export class Pokemon {
   public getOwnerData() {
     return {
       id: this.ownerId,
-      socket: this.ownerSocket
+      socketId: this.ownerSocket
     }
   }
 

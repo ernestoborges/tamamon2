@@ -12,25 +12,26 @@ type Pokemon = {
 }
 
 export default function ClientPage() {
-  const [pokemon, setPokemon] = useState<Pokemon | null>(null)
-  const [pokemonList, setPokemonList] = useState<Pokemon[] | null>(null)
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([])
   const { socket, connected } = useSocketContext()
 
   useEffect(() => {
     if (socket && connected) {
-      socket.on('pokemonUpdate', (data) => {
-        setPokemon(data)
-      })
-
-      socket.on('pokemonStatusUpdate', (data) => {
+      socket.on('pokemonData', (data) => {
         setPokemonList(data)
       })
 
       return () => {
-        socket.off('pokemonUpdate')
+        socket.off('pokemonData')
       }
     }
   }, [socket, connected])
+
+  useEffect(() => {
+    if (pokemonList.length <= 0) {
+      socket?.emit('getPokemons')
+    }
+  }, [])
 
   return (
     <div>
@@ -42,6 +43,7 @@ export default function ClientPage() {
             <div>{poke[1].species}</div>
             <div>Nivel: {poke[1].level}</div>
             <div>Fome: {poke[1].hunger}</div>
+            <div>Felicidade: {poke[1].happiness}</div>
             <button
               onClick={() => socket && socket.emit('feedPokemon', poke[0])}
             >

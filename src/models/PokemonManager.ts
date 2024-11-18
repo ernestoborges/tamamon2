@@ -33,23 +33,27 @@ export class PokemonManager {
         return
       }
 
-      const firstPokemon = this.hungerQueue[0]
-      if (!this.pokemons.has(firstPokemon.getId())) {
+      const pokemon = this.hungerQueue[0]
+      if (!this.pokemons.has(pokemon.getId())) {
         this.hungerQueue.shift()
         return
       }
 
       const currentTime = new Date()
-      const lastUpdate = new Date(firstPokemon.lastHungryUpdate)
+      const lastUpdate = new Date(pokemon.lastHungryUpdate)
       const timeDif = (currentTime.getTime() - lastUpdate.getTime()) / 1000
 
       if (timeDif >= 10) {
         const minutesPassed = Math.floor(timeDif / 60)
-        firstPokemon.decrementHunger(minutesPassed)
-        this.emitPokemonUpdate(firstPokemon)
+        pokemon.decrementHunger(minutesPassed)
 
+        if (pokemon.getHunger() < 10) {
+          pokemon.decrementHappiness(20)
+        }
+
+        this.emitPokemonUpdate(pokemon)
         this.hungerQueue.shift()
-        this.hungerQueue.push(firstPokemon)
+        this.hungerQueue.push(pokemon)
       }
     }, 1000)
   }
@@ -93,10 +97,15 @@ export class PokemonManager {
     }
   }
 
-  private emitPokemonUpdate(pokemon: Pokemon) {
-    const { id, socket } = pokemon.getOwnerData()
-    const ownerPokemons = this.getOwnerPokemons(id, socket)
-    global.io.to(socket).emit('pokemonStatusUpdate', ownerPokemons)
+  emitPokemonUpdate(pokemon: Pokemon) {
+    const { socketId } = pokemon.getOwnerData()
+    this.emitPokemonData(socketId)
+  }
+
+  emitPokemonData(socketId: string) {
+    if (!socketId) return
+    const ownerPokemons = this.getOwnerPokemons(socketId)
+    global.io.to(socketId).emit('pokemonData', ownerPokemons)
   }
 
   async loadPlayerPokemons(id: string, socket: string) {
@@ -124,6 +133,7 @@ export class PokemonManager {
             pokemon.nickname,
             pokemon.level,
             pokemon.hunger,
+            pokemon.happiness,
             pokemon.ability,
             pokemon.last_hunger_update,
             pokemon.gender,
@@ -142,22 +152,22 @@ export class PokemonManager {
     }
   }
 
-  unloadPlayerPokemons(socket: string, id?: string) {
-    console.log('removendo pokemon de:', socket, id)
+  unloadPlayerPokemons(socketId: string, id?: string) {
+    console.log('removendo pokemon de:', socketId, id)
 
     this.pokemons.forEach((pokemon) => {
       const ownerData = pokemon.getOwnerData()
-      if (ownerData.id === id || ownerData.socket === socket) {
+      if (ownerData.id === id || ownerData.socketId === socketId) {
         this.pokemons.delete(pokemon.getId())
         this.removePokemonFromHungerQueue(pokemon.getId())
       }
     })
   }
 
-  getOwnerPokemons(ownerId: string, socketId: string) {
+  getOwnerPokemons(socketId: string) {
     const response = [...this.pokemons].filter(([_, pokemon]) => {
-      const { id, socket } = pokemon.getOwnerData()
-      if (ownerId === id && socket === socketId) {
+      const { socketId: ownerSocketId } = pokemon.getOwnerData()
+      if (ownerSocketId === socketId) {
         return true
       }
       return false
@@ -173,9 +183,9 @@ export class PokemonManager {
       return
     }
 
-    const { socket: ownerSocket } = pokemon.getOwnerData()
+    const { socketId: ownerSocketId } = pokemon.getOwnerData()
 
-    if (ownerSocket !== socketId) {
+    if (ownerSocketId !== socketId) {
       console.error(
         `Unauthorized feed attempt by ${socketId} for Pokemon ${pokemonId}`
       )
@@ -183,8 +193,15 @@ export class PokemonManager {
     }
 
     pokemon.incrementHunger(n)
-    this.reorderHungerQueue()
 
+    const hunger = pokemon.getHunger()
+    if (hunger >= 100) {
+      pokemon.decrementHappiness(100)
+    } else {
+      pokemon.incrementHappiness(30)
+    }
+
+    this.reorderHungerQueue()
     this.emitPokemonUpdate(pokemon)
   }
 }
