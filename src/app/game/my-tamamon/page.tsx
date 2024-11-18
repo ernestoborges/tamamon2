@@ -1,14 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import PokemonCanva from 'components/molecule/pokemon-canva'
 import { useSocketContext } from 'context/socket'
+import { Species } from 'types/Pokemon/common'
 
 type Pokemon = {
   id: string
   nickname: string
   level: number
   hunger: number
-  species: string
+  happiness: number
+  species: Species
 }
 
 export default function ClientPage() {
@@ -37,20 +40,24 @@ export default function ClientPage() {
     <div>
       <h2>My Pokémon</h2>
       {pokemonList &&
-        pokemonList.map((poke, i) => (
-          <div key={i}>
-            <div>{poke[1].nickname}</div>
-            <div>{poke[1].species}</div>
-            <div>Nivel: {poke[1].level}</div>
-            <div>Fome: {poke[1].hunger}</div>
-            <div>Felicidade: {poke[1].happiness}</div>
-            <button
-              onClick={() => socket && socket.emit('feedPokemon', poke[0])}
-            >
-              Alimentar
-            </button>
-          </div>
-        ))}
+        pokemonList.map((poke, i) => {
+          console.log(poke)
+          return (
+            <div key={i}>
+              <PokemonCanva pokemonId={poke.species.pokedex_index} />
+              <div>{poke.nickname}</div>
+              <div>{poke.species.name}</div>
+              <div>Nivel: {poke.level}</div>
+              <div>Fome: {poke.hunger}</div>
+              <div>Felicidade: {poke.happiness}</div>
+              <button
+                onClick={() => socket && socket.emit('feedPokemon', poke.id)}
+              >
+                Alimentar
+              </button>
+            </div>
+          )
+        })}
     </div>
   )
 }

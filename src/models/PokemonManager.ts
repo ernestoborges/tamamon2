@@ -105,7 +105,11 @@ export class PokemonManager {
   emitPokemonData(socketId: string) {
     if (!socketId) return
     const ownerPokemons = this.getOwnerPokemons(socketId)
-    global.io.to(socketId).emit('pokemonData', ownerPokemons)
+    const response = ownerPokemons.map(([_, pokemon]) => {
+      const stateData = pokemon.getStateData()
+      return stateData
+    })
+    global.io.to(socketId).emit('pokemonData', response)
   }
 
   async loadPlayerPokemons(id: string, socket: string) {
@@ -137,11 +141,7 @@ export class PokemonManager {
             pokemon.ability,
             pokemon.last_hunger_update,
             pokemon.gender,
-            pokemon.species.name,
-            pokemon.species.type_1,
-            pokemon.species.type_2,
-            pokemon.species.habitat,
-            pokemon.species.isLegendary
+            pokemon.species
           )
           this.pokemons.set(pokemon.id, pokemonObj)
           this.addPokemonToHungerQueue(pokemonObj)

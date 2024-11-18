@@ -1,5 +1,7 @@
 // Pokemon.ts
 
+import { Species } from 'types/Pokemon/common'
+
 import supabase from '../utils/supabase/basic-client'
 
 export class Pokemon {
@@ -18,11 +20,7 @@ export class Pokemon {
     public lastHungryUpdate: string,
     //
     private gender: 'male' | 'female' | null,
-    private species: string,
-    private type1: string,
-    private type2: string,
-    private habitat: string,
-    private isLegendary: boolean
+    private species: Species
   ) {
     this.lastSyncTime = new Date()
   }
@@ -76,7 +74,8 @@ export class Pokemon {
         nickname: this.nickname,
         level: this.level,
         hunger: this.hunger,
-        ability: this.ability
+        ability: this.ability,
+        happiness: this.happiness
       })
       .eq('id', this.id)
 
@@ -105,13 +104,16 @@ export class Pokemon {
       nickname: this.nickname,
       level: this.level,
       hunger: this.hunger,
+      happiness: this.happiness,
       ability: this.ability,
       gender: this.gender,
-      species: this.species,
-      type1: this.type1,
-      type2: this.type2,
-      habitat: this.habitat,
-      isLegendary: this.isLegendary
+      species: {
+        type1: this.species.type_1,
+        type2: this.species.type_2,
+        habitat: this.species.habitat,
+        isLegendary: this.species.is_legendary,
+        pokedex_index: this.species.pokedex_index
+      }
     }
   }
 }
