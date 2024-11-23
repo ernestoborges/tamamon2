@@ -82,7 +82,7 @@ export class Pokemon {
     if (error) {
       console.error(`Erro ao sincronizar Pokémon ${this.id}:`, error)
     } else {
-      console.log(`Pokémon ${this.id} sincronizado com o banco de dados.`)
+      // console.log(`Pokémon ${this.id} sincronizado com o banco de dados.`)
       this.lastSyncTime = new Date()
     }
   }

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { io, Socket } from 'socket.io-client'
 
+import { useAccountContext } from './account'
 import { useAuth } from './auth-context'
 
 interface ISocketContext {
@@ -27,6 +28,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter()
   const auth = useAuth()
   const session = auth?.session
+  const accountData = useAccountContext()
 
   const [connected, setConnected] = useState<boolean>(false)
   const [socket, setSocket] = useState<Socket | null>(null)
@@ -40,6 +42,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       newSocket.on('connect', () => {
         console.log('conectado ao socket:', newSocket)
         setConnected(true)
+      })
+
+      newSocket.on('new-account', async (isNewAccount) => {
+        if (isNewAccount) {
+          accountData.updateAccountData({
+            ...accountData.accountData,
+            isNewAccount: true
+          })
+        }
       })
 
       newSocket.on('disconnect', () => {

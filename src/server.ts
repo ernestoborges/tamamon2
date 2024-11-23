@@ -8,6 +8,7 @@ import { Server, Socket } from 'socket.io'
 import pokemonManager from './models/PokemonManager'
 import handleConnectionEvents from './socketio/connection-events'
 import handlePokemonEvents from './socketio/pokemon-events'
+import supabase from './utils/supabase/basic-client'
 
 dotenv.config()
 
@@ -34,8 +35,23 @@ app.prepare().then(() => {
 
   server.all('*', (req, res) => handle(req, res))
 
-  io!.on('connection', (socket: Socket) => {
+  io!.on('connection', async (socket: Socket) => {
     const { userId } = socket.handshake.query
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (!user) return
+
+    if (user.is_new_account) {
+      io!
+        .to(socket.id)
+        .emit('new-account', { is_new_account: user.is_new_account })
+    }
+
     console.log('Um usuário se conectou:', userId, socket.id)
 
     if (typeof userId === 'string') {

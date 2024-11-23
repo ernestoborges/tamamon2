@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import PokemonCanva from 'components/molecule/pokemon-canva'
+import InitialChoiceForm from 'components/organism/initial-choice-form'
+import { useAccountContext } from 'context/account'
 import { useSocketContext } from 'context/socket'
 import { Species } from 'types/Pokemon/common'
 
@@ -17,6 +19,7 @@ type Pokemon = {
 export default function ClientPage() {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([])
   const { socket, connected } = useSocketContext()
+  const { accountData } = useAccountContext()
 
   useEffect(() => {
     if (socket && connected) {
@@ -36,12 +39,15 @@ export default function ClientPage() {
     }
   }, [])
 
+  if (accountData?.isNewAccount) {
+    return <InitialChoiceForm />
+  }
+
   return (
     <div>
       <h2>My Pokémon</h2>
       {pokemonList &&
         pokemonList.map((poke, i) => {
-          console.log(poke)
           return (
             <div key={i}>
               <PokemonCanva pokemonId={poke.species.pokedex_index} />
