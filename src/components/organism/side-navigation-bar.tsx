@@ -47,7 +47,8 @@ export function SideBar() {
           <h2 className='text-xl font-bold'>Menu</h2>
         </div>
         <nav className='flex grow flex-col space-y-2 px-4'>
-          <NavigationItem href='/game/my-tamamon'>Meu tamamon</NavigationItem>
+          <NavigationItem href='/game/team'>Time</NavigationItem>
+          <NavigationItem href='/game/my-pc'>Meu PC</NavigationItem>
           {/* <NavigationItem href='/game/client'>Client</NavigationItem>
           <NavigationItem href='/game/server'>Server</NavigationItem>
           <NavigationItem href='/game/protected'>Protected</NavigationItem> */}

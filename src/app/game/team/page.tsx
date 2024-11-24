@@ -16,7 +16,7 @@ type Pokemon = {
   species: Species
 }
 
-export default function ClientPage() {
+export default function TeamPage() {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([])
   const { socket, connected } = useSocketContext()
   const { accountData } = useAccountContext()

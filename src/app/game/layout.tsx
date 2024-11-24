@@ -14,7 +14,7 @@ export default async function Layout({ children }: LayoutProps) {
         <SocketProvider>
           <div className='flex h-full w-full'>
             <SideBar />
-            <main className='ml-0 flex-1 p-4'>{children}</main>
+            <main className='ml-0 flex-1'>{children}</main>
           </div>
         </SocketProvider>
       </AuthProvider>

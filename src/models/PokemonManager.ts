@@ -122,7 +122,14 @@ export class PokemonManager {
         *,
         type_1: type_1 (*),
         type_2: type_2 (*)
-      )`
+      ),
+      nature: nature_id (
+        name
+      ),
+      original_trainer: original_trainer (
+        name
+      )
+      `
         )
         .eq('owner_id', id)
 

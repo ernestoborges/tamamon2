@@ -38,6 +38,9 @@ const config: Config = {
         'token-surface-error': 'var(--surface-error)',
         'token-composer-surface': 'var(--composer-surface)'
       }
+    },
+    animation: {
+      wiggle: 'wiggle 0.2s alternate infinite;'
     }
   },
   plugins: []
